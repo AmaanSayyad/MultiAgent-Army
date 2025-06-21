@@ -642,21 +642,6 @@ export const TokenomicsDesign: React.FC<TokenomicsDesignProps> = ({
         )}
 
         {errors && <p className="text-red-500 text-sm mb-4">{errors}</p>}
-
-        {/* TokenTable Logo */}
-        <div className="flex justify-end mb-4">
-          <div className="flex items-center">
-            <img
-              src="https://tokentable.xyz/logo.png"
-              alt="TokenTable"
-              className="h-6 mr-2"
-            />
-            <span className="text-gray-400 text-xs font-medium">
-              TOKENTABLE
-            </span>
-            <span className="text-gray-600 text-xs ml-1">POWERED BY</span>
-          </div>
-        </div>
       </div>
 
       {/* Bottom Controls */}

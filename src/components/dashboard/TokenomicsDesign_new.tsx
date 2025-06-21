@@ -103,27 +103,33 @@ export const TokenomicsDesign: React.FC<TokenomicsDesignProps> = ({
   const isGenesis = formData.launchType === "genesis";
   const isStandard = formData.launchType === "standard";
 
-  // Make sure all values sum to 100%
+  // Set the distribution and vesting schedule based on launch type
   useEffect(() => {
-    const total =
-      distribution.developer +
-      distribution.publicSale +
-      distribution.liquidityPool;
-    if (Math.abs(total - 100) > 0.01) {
-      setErrors("Token distribution must total 100%");
-    } else {
-      setErrors(null);
+    if (formData.launchType === "genesis") {
+      setDistribution({
+        developer: 50.0,
+        publicSale: 37.5,
+        liquidityPool: 12.5,
+      });
+      setVestingSchedule({
+        developerMonths: 12,
+        publicSaleMonths: 1,
+        liquidityPoolMonths: 6,
+      });
+    } else if (formData.launchType === "standard") {
+      setDistribution({
+        developer: 0.0,
+        publicSale: 87.5,
+        liquidityPool: 12.5,
+      });
+      setVestingSchedule({
+        developerMonths: 0,
+        publicSaleMonths: 1,
+        liquidityPoolMonths: 6,
+      });
     }
-
-    // For standard launch, enforce the developer percentage is 0
-    if (isStandard && distribution.developer > 0) {
-      setDistribution((prev) => ({
-        ...prev,
-        developer: 0,
-        publicSale: 100 - prev.liquidityPool,
-      }));
-    }
-  }, [distribution, isStandard]);
+    setErrors(null);
+  }, [formData.launchType]);
 
   const handleInputChange = (key: keyof TokenDistribution, value: number) => {
     if (isStandard && key === "developer") {
@@ -188,16 +194,8 @@ export const TokenomicsDesign: React.FC<TokenomicsDesignProps> = ({
   };
 
   const handleNext = () => {
-    // Make sure all values add up to 100
-    const total =
-      distribution.developer +
-      distribution.publicSale +
-      distribution.liquidityPool;
-    if (Math.abs(total - 100) > 0.01) {
-      setErrors("Token distribution must total 100%");
-      return;
-    }
-
+    // Just pass along the data and move to the next step
+    // No validation needed since values are predetermined based on launch type
     updateFormData({
       tokenDistribution: distribution,
       vestingSchedule: vestingSchedule,
@@ -260,6 +258,15 @@ export const TokenomicsDesign: React.FC<TokenomicsDesignProps> = ({
         </button>
 
         <h1 className="text-2xl font-bold mb-6">Propose Tokenomics Design</h1>
+
+        <div className="bg-[rgba(115,94,181,0.2)] border border-[rgba(115,94,181,0.4)] rounded-lg p-4 mb-8">
+          <p className="text-white">
+            <span className="font-medium">Note:</span> For{" "}
+            {formData.launchType === "genesis" ? "Genesis" : "Standard"} tokens,
+            tokenomics are predefined and cannot be modified. The distributions
+            and vesting schedules shown below will be used for your token.
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <div>
@@ -401,188 +408,16 @@ export const TokenomicsDesign: React.FC<TokenomicsDesignProps> = ({
                 totalSupply={totalSupply}
               />
 
-              {/* Editing Inputs */}
-              <div className="space-y-6 mt-8">
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Total Supply</h3>
-                  <div className="relative mb-4">
-                    <input
-                      type="text"
-                      value={totalSupply.toLocaleString()}
-                      onChange={(e) => handleSupplyChange(e.target.value)}
-                      className="w-full bg-[rgba(30,30,30,0.8)] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[rgba(115,94,181,1)] transition-colors"
-                      placeholder="1,000,000"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-medium mb-4">
-                    Distribution Percentages (%)
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-gray-400 mb-2">
-                        Public Sale
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        value={distribution.publicSale}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "publicSale",
-                            parseFloat(e.target.value) || 0
-                          )
-                        }
-                        className="w-full bg-[rgba(30,30,30,0.8)] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[rgba(115,94,181,1)] transition-colors"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-400 mb-2">
-                        Liquidity Pool
-                        {(isGenesis || isStandard) && (
-                          <span className="ml-2 text-xs text-yellow-500">
-                            (Fixed at 12.5%)
-                          </span>
-                        )}
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        value={distribution.liquidityPool}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "liquidityPool",
-                            parseFloat(e.target.value) || 0
-                          )
-                        }
-                        disabled={isGenesis || isStandard}
-                        className={`w-full bg-[rgba(30,30,30,0.8)] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none ${
-                          isGenesis || isStandard
-                            ? "opacity-70 cursor-not-allowed"
-                            : "focus:border-[rgba(115,94,181,1)]"
-                        } transition-colors`}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-400 mb-2">
-                        Developer
-                        {isStandard && (
-                          <span className="ml-2 text-xs text-yellow-500">
-                            (Not available in Standard launch)
-                          </span>
-                        )}
-                        {isGenesis && (
-                          <span className="ml-2 text-xs text-yellow-500">
-                            (Minimum 50%)
-                          </span>
-                        )}
-                      </label>
-                      <input
-                        type="number"
-                        min={isGenesis ? 50 : 0}
-                        max="100"
-                        step="0.1"
-                        value={distribution.developer}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "developer",
-                            parseFloat(e.target.value) || 0
-                          )
-                        }
-                        disabled={isStandard}
-                        className={`w-full bg-[rgba(30,30,30,0.8)] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none ${
-                          isStandard
-                            ? "opacity-70 cursor-not-allowed"
-                            : "focus:border-[rgba(115,94,181,1)]"
-                        } transition-colors`}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-medium mb-4">
-                    Vesting Period (months)
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-gray-400 mb-2">
-                        Public Sale Vesting
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="24"
-                        value={vestingSchedule.publicSaleMonths}
-                        onChange={(e) =>
-                          handleVestingChange(
-                            "publicSaleMonths",
-                            parseInt(e.target.value) || 0
-                          )
-                        }
-                        className="w-full bg-[rgba(30,30,30,0.8)] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[rgba(115,94,181,1)] transition-colors"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-400 mb-2">
-                        Liquidity Pool Vesting
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="24"
-                        value={vestingSchedule.liquidityPoolMonths}
-                        onChange={(e) =>
-                          handleVestingChange(
-                            "liquidityPoolMonths",
-                            parseInt(e.target.value) || 0
-                          )
-                        }
-                        className="w-full bg-[rgba(30,30,30,0.8)] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[rgba(115,94,181,1)] transition-colors"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-400 mb-2">
-                        Developer Vesting
-                        {isStandard && (
-                          <span className="ml-2 text-xs text-yellow-500">
-                            (Not available in Standard launch)
-                          </span>
-                        )}
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="48"
-                        value={vestingSchedule.developerMonths}
-                        onChange={(e) =>
-                          handleVestingChange(
-                            "developerMonths",
-                            parseInt(e.target.value) || 0
-                          )
-                        }
-                        disabled={isStandard}
-                        className={`w-full bg-[rgba(30,30,30,0.8)] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none ${
-                          isStandard
-                            ? "opacity-70 cursor-not-allowed"
-                            : "focus:border-[rgba(115,94,181,1)]"
-                        } transition-colors`}
-                      />
-                    </div>
-                  </div>
-                </div>
+              {/* Info Box */}
+              <div className="text-center text-xs text-gray-400 mt-8 mb-6">
+                Tokenomics are predetermined based on your launch type and
+                cannot be modified.
+                <br />
+                The values shown reflect the{" "}
+                {formData.launchType === "genesis"
+                  ? "Genesis"
+                  : "Standard"}{" "}
+                token launch configuration.
               </div>
             </div>
           </div>
@@ -642,21 +477,6 @@ export const TokenomicsDesign: React.FC<TokenomicsDesignProps> = ({
         )}
 
         {errors && <p className="text-red-500 text-sm mb-4">{errors}</p>}
-
-        {/* TokenTable Logo */}
-        <div className="flex justify-end mb-4">
-          <div className="flex items-center">
-            <img
-              src="https://tokentable.xyz/logo.png"
-              alt="TokenTable"
-              className="h-6 mr-2"
-            />
-            <span className="text-gray-400 text-xs font-medium">
-              TOKENTABLE
-            </span>
-            <span className="text-gray-600 text-xs ml-1">POWERED BY</span>
-          </div>
-        </div>
       </div>
 
       {/* Bottom Controls */}

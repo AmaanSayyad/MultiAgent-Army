@@ -1,5 +1,7 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { ICPService } from "@/lib/icp-service";
+import { Agent } from "@/lib/types";
 
 interface GenesisLaunchProps {
   title: string;
@@ -12,6 +14,45 @@ interface GenesisLaunchProps {
 
 export const GenesisList: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("All");
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const location = useLocation();
+
+  // Get search query from URL if present
+  const searchParams = new URLSearchParams(location.search);
+  const searchQuery = searchParams.get("q") || "";
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      setLoading(true);
+      try {
+        let fetchedAgents;
+
+        // If search query exists, filter agents
+        if (searchQuery) {
+          const allAgents = await ICPService.getAllAgents();
+          const query = searchQuery.toLowerCase();
+          fetchedAgents = allAgents.filter(
+            (agent) =>
+              agent.name.toLowerCase().includes(query) ||
+              agent.description.toLowerCase().includes(query) ||
+              agent.tags.some((tag) => tag.toLowerCase().includes(query))
+          );
+        } else {
+          // Otherwise get all agents
+          fetchedAgents = await ICPService.getAllAgents();
+        }
+
+        setAgents(fetchedAgents);
+      } catch (error) {
+        console.error("Error fetching agents:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAgents();
+  }, [searchQuery]);
 
   const genesis: GenesisLaunchProps = {
     title: "Genesis Launches",
@@ -132,65 +173,56 @@ export const GenesisList: React.FC = () => {
         </div>
       </div>
 
-      {/* Agent Cards Grid - Will be populated with AgentTemplates component */}
+      {/* Agent Cards Grid */}
       <div className="mt-6">
-        <AgentsCardGrid />
+        {loading ? (
+          <div className="animate-pulse">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="bg-gray-700 rounded-xl h-64"></div>
+              ))}
+            </div>
+          </div>
+        ) : agents.length > 0 ? (
+          <AgentsCardGrid agents={agents} />
+        ) : (
+          <div className="text-center py-10">
+            <h3 className="text-xl font-medium text-white mb-2">
+              No agents found
+            </h3>
+            <p className="text-gray-400">
+              Try a different search term or browse all agents
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-const AgentsCardGrid: React.FC = () => {
-  const agents = [
-    {
-      id: "feen",
-      name: "FEEN",
-      symbol: "$FEEN",
-      participants: 340,
-      subscribed: "37.41%",
-      unlockingIn: 14,
-      image:
-        "https://cdn.builder.io/api/v1/image/assets/46fae530789841b58b2cbc3b746c17f7/c5e37802a82236bf478174f32d4630fd260b1fc2",
-      countdown: "00d 00h 03m 27s",
-    },
-    {
-      id: "govbot",
-      name: "GovBot",
-      symbol: "$GOVBOT",
-      participants: 44,
-      subscribed: "0.41%",
-      unlockingIn: 57,
-      image:
-        "https://cdn.builder.io/api/v1/image/assets/46fae530789841b58b2cbc3b746c17f7/62dc1643bcc55c1a54b975bdbd59d22356686703",
-      countdown: "00d 08h 03m 27s",
-    },
-    {
-      id: "xknown",
-      name: "xKnown.ai",
-      symbol: "$XKNOWN",
-      participants: 31,
-      subscribed: "7.08%",
-      unlockingIn: 120,
-      image:
-        "https://cdn.builder.io/api/v1/image/assets/46fae530789841b58b2cbc3b746c17f7/0c82a7db6a49e5d91236b6779fad677c06992157",
-      countdown: "00d 22h 33m 27s",
-    },
-    {
-      id: "xknown1",
-      name: "xKnown.ai",
-      symbol: "$XKNOWN",
-      participants: 31,
-      subscribed: "7.08%",
-      unlockingIn: 120,
-      image:
-        "https://cdn.builder.io/api/v1/image/assets/46fae530789841b58b2cbc3b746c17f7/0c82a7db6a49e5d91236b6779fad677c06992157",
-      countdown: "00d 22h 33m 27s",
-    },
-  ];
+interface AgentsCardGridProps {
+  agents: Agent[];
+}
+
+const AgentsCardGrid: React.FC<AgentsCardGridProps> = ({ agents }) => {
+  // For this example, we'll map the real Agent data to the display format
+  const displayAgents = agents.map((agent) => ({
+    id: agent.id,
+    name: agent.name,
+    symbol: agent.token,
+    description: agent.description,
+    participants: Math.floor(Math.random() * 400) + 20, // Random numbers for demo
+    subscribed: `${(Math.random() * 50).toFixed(2)}%`,
+    unlockingIn: Math.floor(Math.random() * 120) + 1,
+    image: agent.imageUrl,
+    countdown: `00d ${Math.floor(Math.random() * 24)}h ${Math.floor(
+      Math.random() * 60
+    )}m ${Math.floor(Math.random() * 60)}s`,
+  }));
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-      {agents.map((agent) => (
+      {displayAgents.map((agent) => (
         <div
           key={agent.id}
           className="bg-[rgba(255,255,255,0.05)] rounded-xl overflow-hidden cursor-pointer hover:bg-[rgba(255,255,255,0.08)] transition-colors"
