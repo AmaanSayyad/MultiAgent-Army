@@ -1,0 +1,102 @@
+type VestingSchedule = 
+ record {
+   developerMonths: nat;
+   ecosystemMonths: nat;
+   liquidityPoolMonths: nat;
+   marketingMonths: nat;
+   publicSaleMonths: nat;
+   teamMonths: nat;
+ };
+type TokenInfo = 
+ record {
+   agentId: opt AgentId;
+   canisterId: CanisterId;
+   config: TokenConfig;
+   createdAt: Time;
+   distribution: opt TokenDistribution;
+   id: TokenId;
+   vestingSchedule: opt VestingSchedule;
+ };
+type TokenId = text;
+type TokenDistribution = 
+ record {
+   developer: float64;
+   ecosystem: float64;
+   liquidityPool: float64;
+   marketing: float64;
+   publicSale: float64;
+   team: float64;
+ };
+type TokenConfig = 
+ record {
+   decimals: nat8;
+   fee: nat;
+   feeTo: principal;
+   name: text;
+   owner: principal;
+   symbol: text;
+   totalSupply: nat;
+ };
+type Time = int;
+type Result_3 = 
+ variant {
+   err: text;
+   ok: TokenId;
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: principal;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: CanisterStatusResult;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok;
+ };
+type CanisterStatusResult = 
+ record {
+   cycles: nat;
+   memory_size: nat;
+   module_hash: opt blob;
+   settings: CanisterSettings;
+   status: variant {
+             running;
+             stopped;
+             stopping;
+           };
+ };
+type CanisterSettings = 
+ record {
+   compute_allocation: opt nat;
+   controllers: opt vec principal;
+   freezing_threshold: opt nat;
+   memory_allocation: opt nat;
+ };
+type CanisterId = text;
+type AgentId = text;
+/// * Module     : token_factory.mo
+///  * Copyright  : 2025 Multiagent Army Team
+///  * License    : Apache 2.0 with LLVM Exception
+///  * Maintainer : Multiagent Army Team
+///  * Stability  : Experimental
+service : {
+  createToken: (config: TokenConfig, agentId: opt AgentId, distribution:
+   opt TokenDistribution, vestingSchedule: opt VestingSchedule) -> (Result_3);
+  createTokensBatch: (configs: vec TokenConfig, agentIds:
+   opt vec opt AgentId, distributions: opt vec opt TokenDistribution,
+   vestingSchedules: opt vec opt VestingSchedule) -> (vec Result_3);
+  getAllTokens: () -> (vec TokenInfo) query;
+  getToken: (id: TokenId) -> (opt TokenInfo) query;
+  getTokenByAgent: (agentId: AgentId) -> (opt TokenInfo) query;
+  getTokenCanisterId: (tokenId: TokenId) -> (Result_2);
+  getTokenCanisterStatus: (tokenId: TokenId) -> (Result_1);
+  getTokensByOwner: (owner: principal) -> (vec TokenInfo) query;
+  init: () -> ();
+  startTokenCanister: (tokenId: TokenId) -> (Result);
+  stopTokenCanister: (tokenId: TokenId) -> (Result);
+}

@@ -1,0 +1,113 @@
+type VestingSchedule = 
+ record {
+   developerMonths: nat;
+   liquidityPoolMonths: nat;
+   publicSaleMonths: nat;
+ };
+type TokenId = text;
+type TokenDistribution = 
+ record {
+   developer: float64;
+   liquidityPool: float64;
+   publicSale: float64;
+ };
+type TeamMember = 
+ record {
+   avatarUrl: opt text;
+   bio: opt text;
+   expertise: vec text;
+   id: text;
+   name: text;
+   role: text;
+   socialLinks:
+    opt record {
+          github: opt text;
+          linkedin: opt text;
+          twitter: opt text;
+        };
+   wallet: opt text;
+ };
+type RevenueSplit = 
+ record {
+   builder: float64;
+   stakers: float64;
+   treasury: float64;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: AgentId;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok;
+ };
+type Metrics = 
+ record {
+   stakingApr: float64;
+   totalRevenue: float64;
+   totalUsage: nat;
+   totalUsers: nat;
+ };
+type LaunchType = 
+ variant {
+   existing;
+   genesis;
+   standard;
+ };
+type CanisterId = text;
+type AgentId = text;
+type AgentDetails = 
+ record {
+   agentOverview: text;
+   agentType: text;
+   canisterId: opt CanisterId;
+   category: text;
+   createdAt: int;
+   framework: text;
+   id: AgentId;
+   imageUrl: opt text;
+   launchType: LaunchType;
+   name: text;
+   owner: principal;
+   shortPitch: text;
+   tags: vec text;
+   ticker: text;
+   tokenId: opt TokenId;
+   twitterUrl: opt text;
+   websiteUrl: opt text;
+ };
+type Agent = 
+ record {
+   details: AgentDetails;
+   launchDate: opt int;
+   metrics: opt Metrics;
+   revenueSplit: opt RevenueSplit;
+   saleCanisterId: opt CanisterId;
+   teamMembers: vec TeamMember;
+   tokenDistribution: opt TokenDistribution;
+   totalSupply: opt nat;
+   vestingSchedule: opt VestingSchedule;
+ };
+/// * Module     : agent_registry.mo
+///  * Copyright  : 2025 Multiagent Army Team
+///  * License    : Apache 2.0 with LLVM Exception
+///  * Maintainer : Multiagent Army Team
+///  * Stability  : Experimental
+service : {
+  createAgent: (details: AgentDetails, teamMembers: vec TeamMember,
+   tokenDistribution: opt TokenDistribution, vestingSchedule:
+   opt VestingSchedule, totalSupply: opt nat, launchDate: opt int) ->
+   (Result_1);
+  deleteAgent: (id: AgentId) -> (Result);
+  getAgent: (id: AgentId) -> (opt Agent) query;
+  getAgentsByOwner: (owner: principal) -> (vec Agent) query;
+  getAllAgents: () -> (vec Agent) query;
+  initialize: (newOwner: principal) -> ();
+  setAgentToken: (agentId: AgentId, tokenId: TokenId, canisterId:
+   CanisterId) -> (Result);
+  setSaleCanister: (agentId: AgentId, saleCanisterId: CanisterId) -> (Result);
+  updateAgent: (id: AgentId, agent: Agent) -> (Result);
+  updateAgentMetrics: (id: AgentId, metrics: Metrics) -> (Result);
+}

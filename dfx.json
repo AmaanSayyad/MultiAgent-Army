@@ -1,0 +1,64 @@
+{
+  "canisters": {
+    "token": {
+      "main": "src/multiagent_backend/token.mo",
+      "type": "motoko"
+    },
+    "agent_registry": {
+      "main": "src/multiagent_backend/agent_registry.mo",
+      "type": "motoko"
+    },
+    "token_factory": {
+      "main": "src/multiagent_backend/token_factory.mo",
+      "type": "motoko"
+    },
+    "launchpad": {
+      "main": "src/multiagent_backend/launchpad.mo",
+      "type": "motoko"
+    },
+    "user_registry": {
+      "main": "src/multiagent_backend/user_registry.mo",
+      "type": "motoko"
+    },
+    "army_token": {
+      "type": "custom",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/d87954601e4b22972899e9957e800406a0a6b929/rs/rosetta-api/icp_ledger/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/d87954601e4b22972899e9957e800406a0a6b929/canisters/ledger-canister.wasm.gz",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
+    },
+    "multiagent_frontend": {
+      "dependencies": [
+        "internet_identity",
+        "agent_registry",
+        "token_factory",
+        "user_registry",
+        "launchpad"
+      ],
+      "source": ["src/multiagent_frontend/src"],
+      "type": "assets"
+    },
+    "internet_identity": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
+      "shrink": false,
+      "remote": {
+        "id": {
+          "ic": "bw4dl-smaaa-aaaaa-qaacq-cai"
+        }
+      }
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

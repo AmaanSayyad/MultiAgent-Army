@@ -1,0 +1,54 @@
+type UserProfile = 
+ record {
+   agents: vec text;
+   avatarUrl: opt text;
+   createdAt: int;
+   displayName: opt text;
+   id: UserId;
+   socialLinks:
+    opt record {
+          discord: opt text;
+          github: opt text;
+          twitter: opt text;
+        };
+   username: opt text;
+   verifiedTwitter: bool;
+   verifiedWebsite: bool;
+ };
+type UserId = principal;
+type TokenHolding = 
+ record {
+   balance: nat;
+   staked: nat;
+   tokenId: text;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok;
+ };
+/// * Module     : user_registry.mo
+///  * Copyright  : 2025 Multiagent Army Team
+///  * License    : Apache 2.0 with LLVM Exception
+///  * Maintainer : Multiagent Army Team
+///  * Stability  : Experimental
+service : {
+  addUserAgent: (userId: UserId, agentId: text) -> (Result);
+  getAllVerifiedTwitterHandles: () -> (vec record {
+                                             text;
+                                             principal;
+                                           }) query;
+  getAllVerifiedWebsites: () -> (vec record {
+                                       text;
+                                       principal;
+                                     }) query;
+  getProfile: (userId: UserId) -> (opt UserProfile) query;
+  getUserTokens: (userId: UserId) -> (vec TokenHolding);
+  getUsersByAgent: (agentId: text) -> (vec UserProfile) query;
+  initialize: (newOwner: principal) -> ();
+  removeUserAgent: (userId: UserId, agentId: text) -> (Result);
+  setTokenFactoryCanisterId: (canisterId: text) -> ();
+  updateProfile: (profile: UserProfile) -> (Result);
+  verifyTwitter: (twitterHandle: text, proof: text) -> (Result);
+  verifyWebsite: (domain: text, proof: text) -> (Result);
+}

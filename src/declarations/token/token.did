@@ -1,0 +1,81 @@
+type TxReceipt = 
+ variant {
+   Err:
+    variant {
+      AmountTooSmall;
+      BlockUsed;
+      ErrorOperationStyle;
+      ErrorTo;
+      InsufficientAllowance;
+      InsufficientBalance;
+      LedgerTrap;
+      Other: text;
+      Unauthorized;
+    };
+   Ok: nat;
+ };
+type TokenInfo = 
+ record {
+   cycles: nat;
+   deployTime: Time;
+   feeTo: principal;
+   historySize: nat;
+   holderNumber: nat;
+   metadata: Metadata;
+ };
+type Token = 
+ service {
+   allowance: (owner: principal, spender: principal) -> (nat) query;
+   /// Allows spender to withdraw from your account multiple times, up to the value amount.
+   /// If this function is called again it overwrites the current allowance with value.
+   approve: (spender: principal, value: nat) -> (TxReceipt);
+   balanceOf: (who: principal) -> (nat) query;
+   burn: (amount: nat) -> (TxReceipt);
+   decimals: () -> (nat8) query;
+   getAllowanceSize: () -> (nat) query;
+   getHolders: (start: nat, limit: nat) ->
+    (vec record {
+           principal;
+           nat;
+         }) query;
+   getMetadata: () -> (Metadata) query;
+   getTokenFee: () -> (nat) query;
+   getTokenInfo: () -> (TokenInfo) query;
+   getUserApprovals: (who: principal) -> (vec record {
+                                                principal;
+                                                nat;
+                                              }) query;
+   /// Get transaction history size
+   historySize: () -> (nat) query;
+   logo: () -> (text) query;
+   mint: (to: principal, value: nat) -> (TxReceipt);
+   name: () -> (text) query;
+   setFee: (_fee: nat) -> () oneway;
+   setFeeTo: (to: principal) -> () oneway;
+   setLogo: (logo: text) -> () oneway;
+   setName: (name: text) -> () oneway;
+   setOwner: (_owner: principal) -> () oneway;
+   symbol: () -> (text) query;
+   totalSupply: () -> (nat) query;
+   /// Transfers value amount of tokens to Principal to.
+   transfer: (to: principal, value: nat) -> (TxReceipt);
+   /// Transfers value amount of tokens from Principal from to Principal to.
+   transferFrom: (from: principal, to: principal, value: nat) -> (TxReceipt);
+ };
+type Time = int;
+type Metadata = 
+ record {
+   decimals: nat8;
+   fee: nat;
+   logo: text;
+   name: text;
+   owner: principal;
+   symbol: text;
+   totalSupply: nat;
+ };
+/// * Module     : token.mo
+///  * Copyright  : 2021 DFinance Team
+///  * License    : Apache 2.0 with LLVM Exception
+///  * Maintainer : DFinance Team <hello@dfinance.ai>
+///  * Stability  : Experimental
+service : (_logo: text, _name: text, _symbol: text, _decimals: nat8, _totalSupply: nat, _owner: principal, _fee: nat) -> Token

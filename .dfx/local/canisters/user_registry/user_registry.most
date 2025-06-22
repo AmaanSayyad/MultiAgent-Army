@@ -1,0 +1,25 @@
+// Version: 1.0.0
+type SocialVerification__32099593 =
+  {proofText : Text; timestamp : Int; verified : Bool};
+type UserId__191397260 = Principal;
+type UserProfile__842112321 =
+  {
+    agents : [Text];
+    avatarUrl : ?Text;
+    createdAt : Int;
+    displayName : ?Text;
+    id : UserId__191397260;
+    socialLinks : ?{discord : ?Text; github : ?Text; twitter : ?Text};
+    username : ?Text;
+    verifiedTwitter : Bool;
+    verifiedWebsite : Bool
+  };
+actor {
+  stable var owner : Principal;
+  stable var profileEntries : [(UserId__191397260, UserProfile__842112321)];
+  stable var tokenFactoryCanisterId : ?Text;
+  stable var twitterVerificationEntries :
+    [(Text, (UserId__191397260, SocialVerification__32099593))];
+  stable var websiteVerificationEntries :
+    [(Text, (UserId__191397260, SocialVerification__32099593))]
+};

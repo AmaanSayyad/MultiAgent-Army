@@ -1,0 +1,43 @@
+// Version: 1.0.0
+type AgentId__257534196 = Text;
+type CanisterId__735821728 = Text;
+type CommitmentRecord__510648934 =
+  {amount : Nat; timestamp : Int; user : Principal};
+type LaunchType__1066582029 = {#genesis; #standard};
+type PointPledge__555383821 =
+  {points : Nat; timestamp : Int; user : Principal};
+type SaleId__671922843 = Text;
+type SaleStatus__816996314 =
+  {#active; #ended; #failed; #successful; #upcoming};
+type TokenId__739354510 = Text;
+type TokenSale__200915632 =
+  {
+    agentId : AgentId__257534196;
+    armyRequired : Nat;
+    endTime : Int;
+    hardCap : Nat;
+    id : SaleId__671922843;
+    launchType : LaunchType__1066582029;
+    maxPurchase : Nat;
+    minPurchase : Nat;
+    owner : Principal;
+    participants : [(Principal, Nat)];
+    price : Nat;
+    raised : Nat;
+    softCap : Nat;
+    startTime : Int;
+    status : SaleStatus__816996314;
+    tokenId : TokenId__739354510
+  };
+actor {
+  stable var agentRegistryCanisterId : ?CanisterId__735821728;
+  stable var armyTokenCanisterId : ?CanisterId__735821728;
+  stable var commitmentEntries :
+    [(SaleId__671922843, [CommitmentRecord__510648934])];
+  stable var owner : Principal;
+  stable var pointPledgeEntries :
+    [(SaleId__671922843, [PointPledge__555383821])];
+  stable var saleCounter : Nat;
+  stable var saleEntries : [(SaleId__671922843, TokenSale__200915632)];
+  stable var tokenFactoryCanisterId : ?CanisterId__735821728
+};

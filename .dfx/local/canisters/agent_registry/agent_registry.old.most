@@ -1,0 +1,66 @@
+// Version: 1.0.0
+type AgentDetails__371092514 =
+  {
+    agentOverview : Text;
+    agentType : Text;
+    canisterId : ?CanisterId__319583231;
+    category : Text;
+    createdAt : Int;
+    framework : Text;
+    id : AgentId__135200954;
+    imageUrl : ?Text;
+    launchType : LaunchType__528651146;
+    name : Text;
+    owner : Principal;
+    shortPitch : Text;
+    tags : [Text];
+    ticker : Text;
+    tokenId : ?TokenId__547090855;
+    twitterUrl : ?Text;
+    websiteUrl : ?Text
+  };
+type AgentId__135200954 = Text;
+type Agent__492529468 =
+  {
+    details : AgentDetails__371092514;
+    launchDate : ?Int;
+    metrics : ?Metrics__50932407;
+    revenueSplit : ?RevenueSplit__586020508;
+    saleCanisterId : ?CanisterId__319583231;
+    teamMembers : [TeamMember__807508380];
+    tokenDistribution : ?TokenDistribution__889632455;
+    totalSupply : ?Nat;
+    vestingSchedule : ?VestingSchedule__755083967
+  };
+type CanisterId__319583231 = Text;
+type LaunchType__528651146 = {#existing; #genesis; #standard};
+type Metrics__50932407 =
+  {
+    stakingApr : Float;
+    totalRevenue : Float;
+    totalUsage : Nat;
+    totalUsers : Nat
+  };
+type RevenueSplit__586020508 =
+  {builder : Float; stakers : Float; treasury : Float};
+type TeamMember__807508380 =
+  {
+    avatarUrl : ?Text;
+    bio : ?Text;
+    expertise : [Text];
+    id : Text;
+    name : Text;
+    role : Text;
+    socialLinks : ?{github : ?Text; linkedin : ?Text; twitter : ?Text};
+    wallet : ?Text
+  };
+type TokenDistribution__889632455 =
+  {developer : Float; liquidityPool : Float; publicSale : Float};
+type TokenId__547090855 = Text;
+type VestingSchedule__755083967 =
+  {developerMonths : Nat; liquidityPoolMonths : Nat; publicSaleMonths : Nat};
+actor {
+  stable var agentCounter : Nat;
+  stable var agentEntries : [(AgentId__135200954, Agent__492529468)];
+  stable var owner : Principal
+};
