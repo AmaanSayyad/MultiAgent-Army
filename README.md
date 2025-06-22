@@ -1,4 +1,4 @@
-# MultiAgent ArmyPad
+# MultiAgent Army
 
 ## 🚀 Project Overview
 **MultiAgent Army** is a unified launchpad and marketplace for AI agents on the Internet Computer (ICP). We provide:
