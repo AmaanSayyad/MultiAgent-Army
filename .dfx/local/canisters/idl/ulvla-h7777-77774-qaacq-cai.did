@@ -1,0 +1,76 @@
+type TokenSale = 
+ record {
+   agentId: AgentId;
+   armyRequired: nat;
+   endTime: int;
+   hardCap: nat;
+   id: SaleId;
+   launchType: LaunchType;
+   maxPurchase: nat;
+   minPurchase: nat;
+   owner: principal;
+   participants: vec record {
+                       principal;
+                       nat;
+                     };
+   price: nat;
+   raised: nat;
+   softCap: nat;
+   startTime: int;
+   status: SaleStatus;
+   tokenId: TokenId;
+ };
+type TokenId = text;
+type SaleStatus = 
+ variant {
+   active;
+   ended;
+   failed;
+   successful;
+   upcoming;
+ };
+type SaleId = text;
+type Result_1 = 
+ variant {
+   err: text;
+   ok: SaleId;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok;
+ };
+type LaunchType = 
+ variant {
+   genesis;
+   standard;
+ };
+type CanisterId = text;
+type AgentId = text;
+/// * Module     : launchpad.mo
+///  * Copyright  : 2025 Multiagent Army Team
+///  * License    : Apache 2.0 with LLVM Exception
+///  * Maintainer : Multiagent Army Team
+///  * Stability  : Experimental
+service : {
+  buyTokens: (id: SaleId, amount: nat) -> (Result);
+  claimTokens: (id: SaleId) -> (Result);
+  commitToGenesisSale: (id: SaleId, amount: nat) -> (Result);
+  createSale: (tokenId: TokenId, agentId: AgentId, launchType: LaunchType,
+   price: nat, hardCap: nat, softCap: nat, startTime: int, endTime: int,
+   minPurchase: nat, maxPurchase: nat, armyRequired: nat) -> (Result_1);
+  finalizeSale: (id: SaleId) -> (Result);
+  getActiveSales: () -> (vec TokenSale) query;
+  getSale: (id: SaleId) -> (opt TokenSale) query;
+  getSalesByStatus: (status: SaleStatus) -> (vec TokenSale) query;
+  getTotalPointsPledged: (saleId: SaleId) -> (nat) query;
+  getUserCommitments: (user: principal) -> (vec record {
+                                                  SaleId;
+                                                  nat;
+                                                }) query;
+  getUserPointPledges: (saleId: SaleId, user: principal) -> (nat) query;
+  initialize: (newOwner: principal) -> ();
+  pledgePoints: (id: SaleId, points: nat) -> (Result);
+  setCanisterIds: (agentRegistry: opt CanisterId, tokenFactory:
+   opt CanisterId, armyToken: opt CanisterId) -> ();
+}
